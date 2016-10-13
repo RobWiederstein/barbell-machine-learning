@@ -1,0 +1,65 @@
+---
+title: "Machine Learning Exercise for Barbell Data Set"
+author: "Robert Wiederstein"
+date: "October 13, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Executive Summary
+Six participants were asked to wear accelerometers and perform barbell lifts correctly and incorrectly in five different ways.  The variable "classe" was the outcome variable of interest.  A random forrest model fit the data accuracy of .995 and, when used against the test set, predicted with 99.5% accuracy the likelihood of a lift being identified correctly.
+
+###Project Description
+As background, the data originate from devices that are personally worn to measure activity.  These devices such as Jawbone Up, Nike FuelBand, and Fitbit collect a large amount of data about personal activity relatively inexpensively. This technology is part of the Human Activity Recognition ("HAR") movement and could potentially improve care for the elderly, incentivize people to exercise and monitor weight loss and other health indicators.
+
+The Coursera website states that "[t]hese type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it."
+
+This project's data come from accelerometers on the belt, forearm, arm, and dumbell of 6 participants using a 1.25 kg weight. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. The project is significant because previous research on accelerometers sought to identify the type of activity whereas in the current project, the goal is to identify whether the participant is doing it correctly. Class "A" identified the exercise being done correctly while "B," "C," "D," and "E" identified an incorrect exercise.  Thus, the project is a classification problem.
+
+###Loading the Data
+
+###Cleaning the Data
+###Modeling the Data
+###Choosing the Model
+
+Seven models were chosen from the 230 available on the caret model [page](https://topepo.github.io/caret/available-models.html). Three of the models were specifically chosen because they were identified as being "widely-used" classifiers in An Introduction to Statistical Learning.  The three models were logistic regression, linear discriminant analysis, and K-nearest neighbor.  (James, 127). The models used in the analysis were the following:
+
+* stochastic gradient boosting ("gbm")
+* boosted logistic regression ("lb")
+* linear descriminate analysis ("lda")
+* k-nearest neighbor ("knn")
+* random forest ("rf")
+* svmRadialWeights ("svm")
+* neural net ("nnet")
+
+```{r}
+load("./mods/fit_gbm")
+```
+
+
+
+###Feature Selection
+###Predictions
+###Potential Strengths and Weaknesses
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

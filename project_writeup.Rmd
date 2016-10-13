@@ -1,0 +1,181 @@
+---
+title: "Machine Learning Exercise for Barbell Data Set"
+author: "Robert Wiederstein"
+date: "October 13, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, results="hide", message=FALSE}
+library(caret)
+library(mlbench)
+library(ggplot2)
+library(lattice)
+library(doMC)
+
+```
+
+
+###Executive Summary
+Six participants were asked to wear accelerometers and perform barbell lifts correctly and incorrectly in five different ways.  The variable "classe" was the outcome variable of interest.  A random forest model fit the data the best with an accuracy of 99.5% and, when applied to the test set, predicted with 99.67% accuracy the likelihood of a lift being identified correctly.  Interestingly, there was 100% accuracy in identifying when a lift was done correctly, option "A" in the classe variable.
+
+###Project Description
+As background, the data originated from devices that were personally worn to measure activity.  These devices such as Jawbone Up, Nike FuelBand, and Fitbit collect a large amount of data about personal activity  inexpensively. This technology is part of the Human Activity Recognition ("HAR") movement and could potentially improve care for the elderly, incentivize people to exercise, and monitor weight loss and other health indicators.
+
+The Coursera website states that "[t]hese type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it."
+
+This project's data comes from accelerometers on the belt, forearm, arm, and dumbell of 6 participants using a 1.25 kg weight. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. The project is significant because previous research on accelerometers sought to identify the type of activity whereas in the current project, the goal is to identify whether the participant is doing it correctly. Class "A" identified the exercise being done correctly while "B," "C," "D," and "E" identified an incorrect exercise.  Thus, the project is a classification problem.
+
+###Loading and Cleaning the Data
+
+
+```{r, echo=FALSE, warning=FALSE, cache=TRUE, results="hide"}
+#download testing set
+url01 <-"https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+destfile01 <- "./data/pml_testing.csv"
+if(!file.exists(destfile01)) download.file(url = url, destfile = destfile,
+                                         method = "curl"
+                                         )
+#download training set
+url02 <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+destfile02 <- "./data/pml-training.csv"
+if(!file.exists(destfile02)) download.file(url = url, destfile = destfile,
+                                         method = "curl")
+
+#read & combine
+training <-read.csv(file = destfile02, header = T, stringsAsFactors = F)
+training$problem_id <- 1:nrow(training)
+testing <- read.csv(file = destfile01, header = T, stringsAsFactors = F)
+testing$classe <- "unk"
+
+#bb stands for "barbell"
+bb <- rbind(training, testing)
+seed <- 107
+
+```
+The data were read into R and the testing and training sets were combined so that they could be uniformly processed.  The original and combined set of data contained `r nrow(bb)` observations on `r ncol(bb)` variables. Many of the variables were empty and, therefore, eliminated from the dataframe.
+
+```{r, results="hide", cache=TRUE}
+cols.na <- apply(bb, 2, function(x)(sum(is.na(x))))
+bb <- bb[, which(cols.na == 0) ]
+rows.na <- apply(bb, 1, function(x)(sum(is.na(x))))
+bb <- bb[which(rows.na == 0), ]
+```
+
+Additionally, the first seven columns were used for purposes of identification. After reviewing the data, it was determined there was little potential for feature engineering and they were discarded.
+
+```{r, results="hide", cache = TRUE, }
+
+cols.id <- 1:7
+bb <- bb[, -cols.id]
+
+```
+
+After eliminating the different variables, the final data set was comprised of `r nrow(bb)` rows and `r ncol(bb)` variables.  The observations were then returned to their original training and testing sets.
+
+
+
+###Choosing the Model
+
+Seven models were chosen from the 230 available on the caret model [page](https://topepo.github.io/caret/available-models.html). Three of the models were specifically chosen because they were identified as being "widely-used" classifiers in An **Introduction to Statistical Learning**.  The three models were logistic regression, linear discriminant analysis, and K-nearest neighbor.  (James, 127). The models used in the analysis were the following:
+
+* stochastic gradient boosting ("gbm")
+* boosted logistic regression ("lb")
+* linear descriminate analysis ("lda")
+* k-nearest neighbor ("knn")
+* random forest ("rf")
+* svmRadialWeights ("svm")
+* neural net ("nnet")
+
+Additionally, each of the models resampled the data using the "repeatedcv" method, as opposed to the bootstrap method, and repeated for a total of three resampling iterations. Cross-validation is a method of randomly choosing samples from the training set and repeatedly fitting the model to the set.  This method allows one to draw an inference as to the variability of the results as well.  (James, 127).
+
+```{r, echo=FALSE, warning=FALSE, cache=TRUE, results='hide'}
+library(caret)
+mods <- list.files(path = "./mods/", pattern = "fit", full.names = T)
+lapply(mods, load, .GlobalEnv)
+```
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE, fig.align="center"}
+library(caret)
+#Model with best accuracy is rf
+resamps <- resamples(list(gbm = fit.gbm,
+                          lda = fit.knn,
+                          knn = fit.lb,
+                          lb  = fit.lda,
+                          nnet = fit.nnet,
+                          rf = fit.rf,
+                          svm = fit.svm
+)
+)
+dotplot(resamps)
+```
+
+In descending order of accuracy was random forest with 99.45%, svm radial weights with 99.35% and linear discriminate analysis with 96.37%.
+
+
+###Modeling the Data
+
+```{r, cache=T, echo=FALSE, fig.align="center"}
+load("./mods/fit_rf")
+plot(fit.rf, main = "Random Forest Model")
+
+```
+
+```{r, echo=FALSE}
+load("./mods/fit_rf")
+a <- fit.rf$results
+a[a$mtry == 9, ]
+```
+
+Using the caret package, the training control was set to a parameter of 15.  The results show that after 9 randomly chosen variables that the accuracy of the model declines.
+
+###Feature Selection
+
+```{r, echo=FALSE, cache=TRUE, fig.align="center", warning=FALSE, message=FALSE}
+load("./mods/fit_rf")
+rfImp <- varImp(fit.rf, scale=FALSE)
+dotPlot(rfImp, main = "Top 20 Variables Ranked by Relative Importance")
+
+```
+Pursuant to the model, the variables most helpful in accurately classifying the barbell lift were "roll_belt," "yaw_belt," and "pitch_forearm."
+
+###Predictions
+
+Applying the model to the test set provided in the course, the following 20 predictions were made.  After submission to coursera, all 20 predictions were correct.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+
+testing <- read.csv("./data/pml_testing_clean.csv", header = T, stringsAsFactors = F)
+load("./mods/fit_rf")
+rfClasses <- predict(fit.rf, newdata = testing)
+rfClasses
+
+```
+Upon attempting to generate a confusion matrix for the Coursera test set, the following error message was generated.
+```{r, error=TRUE}
+confusionMatrix(data = rfClasses, testing$classe)
+```
+
+
+Because a confusion matrix could not be generated, the validation set was used consisting of 4904 observations.  The results for the confusion matrix were as follows:  
+```{r, echo=FALSE, warnings=FALSE, message=FALSE, cache=TRUE}
+
+testing <- read.csv("./data/testing.csv", header = T, stringsAsFactors = F)
+load("./mods/fit_rf")
+rfClasses <- predict(fit.rf, newdata = testing)
+#rfProbs <- predict(fit.rf, newdata = testing, type = "prob")
+rfProbs <- predict(fit.rf, newdata = testing)
+confusionMatrix(data = rfClasses, testing$classe)
+
+```
+
+
+###Potential Strengths and Weaknesses
+The stochastic gradient boosting model computing requirements exceeded the tolerance of my available computer.  In order to complete the assignment, the training data set was subset to a random 1000 observations.  This likely led to a larger confidence interval surrounding the estimate and may have impacted the overall accuracy measure too.
+
+Additionally, the accuracy and kappa metrics revealed that the random forest model is an excellent strategy in predicting the classification of the barbell lifting.  However, a more complete analysis would include ensembling methods to see if those metrics might be improved futher, potentially reaching 100% accuracy.
+
+
