@@ -130,9 +130,9 @@ $(document).ready(function () {
 </div>
 <div id="project-description" class="section level3">
 <h3>Project Description</h3>
-<p>As background, the data originate from devices that are personally worn to measure activity. These devices such as Jawbone Up, Nike FuelBand, and Fitbit collect a large amount of data about personal activity relatively inexpensively. This technology is part of the Human Activity Recognition (“HAR”) movement and could potentially improve care for the elderly, incentivize people to exercise and monitor weight loss and other health indicators.</p>
+<p>As background, the data originated from devices that were personally worn to measure activity. These devices such as Jawbone Up, Nike FuelBand, and Fitbit collect a large amount of data about personal activity inexpensively. This technology is part of the Human Activity Recognition (“HAR”) movement and could potentially improve care for the elderly, incentivize people to exercise, and monitor weight loss and other health indicators.</p>
 <p>The Coursera website states that “[t]hese type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it.”</p>
-<p>This project’s data come from accelerometers on the belt, forearm, arm, and dumbell of 6 participants using a 1.25 kg weight. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. The project is significant because previous research on accelerometers sought to identify the type of activity whereas in the current project, the goal is to identify whether the participant is doing it correctly. Class “A” identified the exercise being done correctly while “B,” “C,” “D,” and “E” identified an incorrect exercise. Thus, the project is a classification problem.</p>
+<p>This project’s data comes from accelerometers on the belt, forearm, arm, and dumbell of 6 participants using a 1.25 kg weight. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. The project is significant because previous research on accelerometers sought to identify the type of activity whereas in the current project, the goal is to identify whether the participant is doing it correctly. Class “A” identified the exercise being done correctly while “B,” “C,” “D,” and “E” identified an incorrect exercise. Thus, the project is a classification problem.</p>
 </div>
 <div id="loading-and-cleaning-the-data" class="section level3">
 <h3>Loading and Cleaning the Data</h3>
@@ -144,7 +144,7 @@ bb &lt;- bb[which(rows.na == 0), ]</code></pre>
 <p>Additionally, the first seven columns were used for purposes of identification. After reviewing the data, it was determined there was little potential for feature engineering and they were discarded.</p>
 <pre class="r"><code>cols.id &lt;- 1:7
 bb &lt;- bb[, -cols.id]</code></pre>
-<p>After eliminating the different variables, the final data set was comprised of 19642 rows and 54 variables. The training and testing sets were separated back into their original sets.</p>
+<p>After eliminating the different variables, the final data set was comprised of 19642 rows and 54 variables. The observations were then returned to their original training and testing sets.</p>
 </div>
 <div id="choosing-the-model" class="section level3">
 <h3>Choosing the Model</h3>
@@ -216,8 +216,8 @@ bb &lt;- bb[, -cols.id]</code></pre>
 </div>
 <div id="potential-strengths-and-weaknesses" class="section level3">
 <h3>Potential Strengths and Weaknesses</h3>
-<p>The stochastic gradient boosting model computing requirements exceeded the tolerance of my available computer. In order to complete the assignment the training data set was subset to a random 1000 observations. This likely led to a larger confidence interval surrounding the estimate and may have impacted the overall accuracy measure too.</p>
-<p>Additionally, the accuracy and kappa metrics reveal that random forest model is an excellent strategy in predicting the classification of the barbell lifting. However, a more complete analysis would include ensembling methods to see if those metrics might be improved futher potentially reaching 100% accuracy.</p>
+<p>The stochastic gradient boosting model computing requirements exceeded the tolerance of my available computer. In order to complete the assignment, the training data set was subset to a random 1000 observations. This likely led to a larger confidence interval surrounding the estimate and may have impacted the overall accuracy measure too.</p>
+<p>Additionally, the accuracy and kappa metrics revealed that the random forest model is an excellent strategy in predicting the classification of the barbell lifting. However, a more complete analysis would include ensembling methods to see if those metrics might be improved futher, potentially reaching 100% accuracy.</p>
 </div>
 
 
